@@ -85,12 +85,10 @@ let points = new THREE.Points(
         h.y = 4. + 1.2 * h.y - abs(h.x) * sqrt(max((20. - abs(h.x)) / 15., 0.));
         h.z = h.z * (2. - h.y / 15.);
         float r = 13. + 3. * pow(0.5 + 0.5 * sin(2. * PI * time + h.y / 25.), 4.);
-        float heart = sdSphere(h, r);        
 
-        bool boolDiscard = heart > 0.0 || heart < -2.;
+        bool boolDiscard = true;
         
         vec3 c = vec3(1., 0.75, 0.9); // colour of the heart
-        if (heart > -0.125) c = vec3(1);
 
         vC = c;
 
@@ -129,6 +127,88 @@ let points = new THREE.Points(
   })
 );
 scene.add(points);
+
+let pointss = new THREE.Points(
+  pointsGeometry,
+  new THREE.ShaderMaterial({ 
+    uniforms:{
+      time:{
+        value: 0
+      },
+      size: {
+        value: 1.25
+      },
+      //texture: { value: new THREE.TextureLoader().load( "https://threejs.org/examples/textures/sprites/spark1.png" ) },
+      logo: {value: new THREE.TextureLoader().load( "https://i.ibb.co/BffXrbr/threejslogo.png" ) }
+    },
+    vertexShader:`
+      #define PI 3.1415926  
+
+      uniform float time;
+      uniform float size;
+
+      attribute float speed;
+
+      varying vec3 vC;
+      varying float vDiscard;
+      `
+      + sdf +
+      `
+      void main(){
+        vec3 pos = position;
+       
+        float start = position.y - -50.;
+        float way = speed * time;
+        float totalWay = start + way;
+        float modulo = mod(totalWay, 100.);
+        pos.y = modulo - 50.;
+        
+        vec3 vPos = pos;
+
+        vPos *= rotate(vec3(0, time, 0));
+        
+        // heart https://www.youtube.com/watch?v=aNR4n0i2ZlM
+        vec3 h = vPos / 2.5;
+        h.y = 4. + 1.2 * h.y - abs(h.x) * sqrt(max((20. - abs(h.x)) / 15., 0.));
+        h.z = h.z * (2. - h.y / 15.);
+        float r = 13. + 3. * pow(0.5 + 0.5 * sin(2. * PI * time + h.y / 25.), 4.);
+        float heart = sdSphere(h, r);        
+
+        bool boolDiscard = heart > 0.0 || heart < -2.;
+        
+        vec3 c = vec3(1., 0.75, 0.9); // colour of the heart
+        if (heart > -0.125) c = vec3(1);
+
+        vC = c;
+
+        
+        vDiscard = boolDiscard == true ? 1. : 0.;
+
+        vec4 mvPosition = modelViewMatrix * vec4( pos, 1.0 );
+        gl_PointSize = size * ( 300.0 / -mvPosition.z );
+        gl_Position = projectionMatrix * mvPosition;
+      }
+    `,
+    fragmentShader: `
+      //uniform sampler2D texture;
+
+      varying vec3 vC;
+      varying float vDiscard;
+     
+      void main(){
+
+        if ( vDiscard > 0.5 ) {discard;}
+        if (length(gl_PointCoord - 0.5) > 0.5) {discard;}
+        gl_FragColor = vec4( vC, 1.0);
+        //gl_FragColor = gl_FragColor * texture2D( texture, gl_PointCoord );
+      }
+    `,
+    /*blending: THREE.AdditiveBlending,
+    depthTest: false,
+    transparent: true*/
+  })
+);
+scene.add(pointss);
 
 // Box3Helper
 var box3 = new THREE.Box3().setFromObject(points);
