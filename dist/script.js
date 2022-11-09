@@ -39,6 +39,7 @@ let pointsGeometry = new THREE.BufferGeometry().setFromPoints(positions);
 pointsGeometry.addAttribute("speed", new THREE.BufferAttribute(new Float32Array(speed), 1));
 pointsGeometry.center();
 
+
 let points = new THREE.Points(
   pointsGeometry,
   new THREE.ShaderMaterial({ 
@@ -97,14 +98,14 @@ let points = new THREE.Points(
         if(position.z > logoPos - 2.5 && position.z < logoPos + 2.5){
           vec2 uv = (pos.xy - vec2(-50))/vec2(100);
           vC = vec3(1.) - texture2D( logo, uv ).xyz; // invert the color
-          boolDiscard = boolDiscard && vC.r < 0.75;
+          boolDiscard = boolDiscard && vC.r < 0.95;
           vC += c;
         }
         
         vDiscard = boolDiscard == true ? 1. : 0.;
 
         vec4 mvPosition = modelViewMatrix * vec4( pos, 1.0 );
-        gl_PointSize = size * ( 300.0 / -mvPosition.z );
+        gl_PointSize = size * ( 500.0 / -mvPosition.z );
         gl_Position = projectionMatrix * mvPosition;
       }
     `,
