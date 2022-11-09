@@ -39,6 +39,12 @@ let pointsGeometry = new THREE.BufferGeometry().setFromPoints(positions);
 pointsGeometry.addAttribute("speed", new THREE.BufferAttribute(new Float32Array(speed), 1));
 pointsGeometry.center();
 
+var images = {
+  an: 'https://i.ibb.co/wctB1P8/an.png'
+}
+let params = (new URL(document.location)).searchParams;
+let image = images[params.get('name') || ''] || 'https://i.ibb.co/pj68dRJ/theo.png';
+console.log(image)
 
 let points = new THREE.Points(
   pointsGeometry,
@@ -51,7 +57,7 @@ let points = new THREE.Points(
         value: 1.25
       },
       //texture: { value: new THREE.TextureLoader().load( "https://threejs.org/examples/textures/sprites/spark1.png" ) },
-      logo: {value: new THREE.TextureLoader().load( "https://i.ibb.co/BffXrbr/threejslogo.png" ) }
+      logo: {value: new THREE.TextureLoader().load( image ) }
     },
     vertexShader:`
       #define PI 3.1415926  
