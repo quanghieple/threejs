@@ -109,7 +109,7 @@ let points = new THREE.Points(
         vDiscard = boolDiscard == true ? 1. : 0.;
 
         vec4 mvPosition = modelViewMatrix * vec4( pos, 1.0 );
-        gl_PointSize = size * ( 500.0 / -mvPosition.z );
+        gl_PointSize = size * ( 600.0 / -mvPosition.z );
         gl_Position = projectionMatrix * mvPosition;
       }
     `,
